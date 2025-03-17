@@ -1,0 +1,82 @@
+<section xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="my-docbook-test-2">
+  <title>My DocBook Test 2</title>
+  <section xml:id="introduction">
+    <title>Introduction</title>
+    <para>
+      This is a test to find out the minimal features supported by the
+      Cuis Erudite Help System. The text is given in Markdown and
+      converted to DocBook XML with pandoc.
+    </para>
+  </section>
+  <section xml:id="markdown-examples">
+    <title>Markdown examples</title>
+    <para>
+      The <literal>EruditeDocBookParser</literal> class parses DocBook
+      XML files and builds a document tree consisting of
+      <literal>EruditeDocNode</literal> nodes. Accessing a method:
+      <literal>MorphicEruditeDocRenderer&gt;&gt;renderCode:</literal>.
+    </para>
+    <para>
+      A bullet list
+    </para>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Buenos Aires
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Johannesburg
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Geneva
+        </para>
+      </listitem>
+    </itemizedlist>
+    <para>
+      A numbered list
+    </para>
+    <orderedlist numeration="arabic" spacing="compact">
+      <listitem>
+        <para>
+          Identify the gaps
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Find a solution
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Implement
+        </para>
+      </listitem>
+    </orderedlist>
+  </section>
+  <section xml:id="data-conversion">
+    <title>Data conversion</title>
+    <para>
+      Markdown to DocBook conversion
+    </para>
+    <programlisting>
+pandoc -f markdown -t docbook MyDocBookTest2section.md -o MyDocBookTest2section.xml
+</programlisting>
+    <para>
+      Options for pandoc
+    </para>
+    <programlisting>
+pandoc --help
+</programlisting>
+  </section>
+  <section xml:id="conclusion">
+    <title>Conclusion</title>
+    <para>
+      The elements above are supported but references to classes are not
+      yet clickable to open a Smalltalk browser.
+    </para>
+  </section>
+</section>

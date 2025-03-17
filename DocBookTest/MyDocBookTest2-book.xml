@@ -1,0 +1,5 @@
+<book xmlns='http://docbook.org/ns/docbook'
+      xmlns:xi='http://www.w3.org/2001/XInclude'
+      xml:id="docbook">
+  <xi:include href="MyDocBookTest2Section.xml"/>
+</book>
