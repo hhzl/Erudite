@@ -1,9 +1,9 @@
-'From Cuis7.3 [latest update: #7066] on 12 March 2025 at 6:53:45 pm'!
+'From Cuis7.3 [latest update: #7070] on 17 March 2025 at 11:32:08 am'!
 'Description DocBook support for Erudite.
 
 DocBook validation: https://wiki.archlinux.org/title/DocBook
 DocBook guide: https://tdg.docbook.org/tdg/5.2/'!
-!provides: 'EruditeDocBook' 1 29!
+!provides: 'EruditeDocBook' 1 31!
 !requires: 'Erudite' 1 270 nil!
 !requires: 'EruditeXMLBook' 1 14 nil!
 !requires: 'YAXO' 1 27 nil!
@@ -13,7 +13,7 @@ SystemOrganization addCategory: #EruditeDocBook!
 
 !classDefinition: #DocBookEruditeBook category: #EruditeDocBook!
 EruditeBook subclass: #DocBookEruditeBook
-	instanceVariableNames: 'file mediaDir imageDir'
+	instanceVariableNames: 'file mediaDir imageDir inferLiterals'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'EruditeDocBook'!
@@ -97,19 +97,30 @@ DocBookEruditeBook new
 
 !
 
-!EruditeDocBookParser commentStamp: '<historical>' prior: 0!
+!EruditeDocBookParser commentStamp: 'MM 3/17/2025 11:09:51' prior: 0!
 Instance variables:
-- inferLiterals <Boolean>: When enabled, <literal> elements are tried to be inferred. If they contain a reference to a Smalltalk class or selector. It is disabled by default.!
+- inferLiterals <Boolean>: When enabled, <literal> elements are tried to be inferred. If they contain a reference to a Smalltalk class or selector. It is disabled by default.
+                                           Syntax is: Capitalized names parsed as references to classes, #selectors, and Class>>method:!
 
 !DocBookEruditeBook methodsFor: 'as yet unclassified' stamp: 'MM 6/20/2024 22:03:44'!
 baseDir
 
 	^ file parent! !
 
-!DocBookEruditeBook methodsFor: 'as yet unclassified' stamp: 'MM 6/24/2024 15:26:28'!
+!DocBookEruditeBook methodsFor: 'as yet unclassified' stamp: 'MM 3/17/2025 09:56:36'!
 inferLiterals
 
-	^ false! !
+	^ inferLiterals! !
+
+!DocBookEruditeBook methodsFor: 'as yet unclassified' stamp: 'MM 3/17/2025 09:56:50'!
+inferLiterals: aBoolean
+
+	inferLiterals := aBoolean! !
+
+!DocBookEruditeBook methodsFor: 'as yet unclassified' stamp: 'MM 3/17/2025 09:57:10'!
+initialize
+	super initialize.
+	inferLiterals := false! !
 
 !DocBookEruditeBook methodsFor: 'as yet unclassified' stamp: 'MM 6/20/2024 16:08:52'!
 load
@@ -199,7 +210,7 @@ initialize
 	self imageDir: (baseDir / 'DocBook/TheCuisBook/img')
 	! !
 
-!DocBookEruditeBookStorer methodsFor: 'as yet unclassified' stamp: 'MM 6/24/2024 15:34:46'!
+!DocBookEruditeBookStorer methodsFor: 'as yet unclassified' stamp: 'MM 3/17/2025 11:25:06'!
 load
 
 	| xml loadedBook |
@@ -209,6 +220,7 @@ load
 	loadedBook := book class new
 					file: book file;
 					yourself.
+	book file ifNil: [^loadedBook].
 	xml := XMLDOMParser parseDocumentFrom: book file readStream.
 	xml tagsNamed: #title do: [:elem | loadedBook title: elem contentString].
 	"Each include is expected to have a chapter."
@@ -514,7 +526,7 @@ parseListitem: anXMLElement
 	
 	^ node! !
 
-!EruditeDocBookParser methodsFor: 'parsers' stamp: 'MM 6/24/2024 15:35:08'!
+!EruditeDocBookParser methodsFor: 'parsers' stamp: 'MM 3/17/2025 11:20:51'!
 parseLiteral: anXMLElement
 
 	| text target type |
@@ -524,12 +536,14 @@ parseLiteral: anXMLElement
 	inferLiterals ifTrue: [
 		(target allSatisfy: [:char | char isSeparator not]) "no blanks"
 			ifTrue: [
+				(target includesSubString: '>>') ifTrue: [ "infer as method"
+					type := #method].
 				target first = $# ifTrue: [ "infer as selector"
 					type := #selector].
-				(target first isUppercase and: [
-					Smalltalk includesKey: target asSymbol])
-						ifTrue: [ "infer as class reference"
-							type := #class]]].
+				type ifNil: [(target first isUppercase and: [
+							Smalltalk includesKey: target asSymbol])
+								ifTrue: [ "infer as class reference"
+									type := #class]]]].
 	
 	text := String streamContents: [:s |
 					s space;
@@ -537,10 +551,10 @@ parseLiteral: anXMLElement
 				   	space].
 
 	^ (anXMLElement attributeAt: 'erudite:type')
-		ifNotNil: [:declaredType | 			EruditeDocLink 				target: target 				type: declaredType asSymbol 				label: text]
+		ifNotNil: [:declaredType | 	EruditeDocLink target: target type: declaredType asSymbol label: text]
 		ifNil: [
-			type ifNotNil: [EruditeDocLink 				target: target 			type: type 		label: text]
-				ifNil: [	EruditeStyledText 				text: text 			style: TextColor blue]]! !
+			type ifNotNil: [EruditeDocLink target: target type: type label: text]
+				ifNil: [ EruditeStyledText text: text style: TextColor blue]]! !
 
 !EruditeDocBookParser methodsFor: 'parsers' stamp: 'MM 6/21/2024 08:34:25'!
 parseMediaobject: anXMLElement
