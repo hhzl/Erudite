@@ -31,8 +31,9 @@ MorphicEruditeDocRenderer>>example2
 	| erudite |
 	erudite := SmalltalkEruditeParser parse: Object comment.
 	(MorphicEruditeDocRenderer on: erudite) render edit.
+````
 
 ## PlantUML
 
 The plantuml binary is invoked in `EruditeUMLNode>>data` method.
-````
+
